@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, OWNER_UID } from './config.js';
 
 const $ = (selector) => document.querySelector(selector);
 const form = $('#projectForm');
@@ -24,6 +24,10 @@ function escapeHtml(value = '') {
 }
 
 function renderProjects() {
+  if (currentUser?.id !== OWNER_UID) {
+    $('#projectCount').textContent = 'Privat';
+    return;
+  }
   const query = $('#searchInput').value.trim().toLocaleLowerCase('de');
   const platform = $('#platformFilter').value;
   const visible = projects.filter((project) => {
@@ -53,10 +57,18 @@ async function loadProjects() {
 }
 
 function updateAuthUI() {
+  const isOwner = currentUser?.id === OWNER_UID;
   authButton.textContent = currentUser ? 'Abmelden' : 'Anmelden';
-  form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach((control) => { control.disabled = !currentUser; });
-  if (!currentUser) setMessage('Zum Veröffentlichen bitte anmelden.');
-  else setMessage(`Angemeldet als ${currentUser.email}`);
+  form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach((control) => { control.disabled = !isOwner; });
+  if (!currentUser) {
+    setMessage('Bitte mit dem freigeschalteten Supabase-Konto anmelden.');
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><h3>Private Bibliothek</h3><p>Melde dich mit dem freigeschalteten Konto an, um deine Projekte zu sehen.</p></div>';
+  } else if (!isOwner) {
+    setMessage('Dieses Supabase-Konto ist für AppVault nicht freigeschaltet.', true);
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><h3>Zugriff nicht freigeschaltet</h3><p>Verwende das für AppVault hinterlegte Supabase-Konto.</p></div>';
+  } else {
+    setMessage(`Angemeldet als ${currentUser.email}`);
+  }
   renderProjects();
 }
 
@@ -70,7 +82,7 @@ authButton.addEventListener('click', async () => {
   const email = window.prompt('E-Mail-Adresse für den Anmeldelink:');
   if (!email?.trim()) return;
   authButton.disabled = true;
-  const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.href.split('#')[0] } });
+  const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.href.split('#')[0], shouldCreateUser: false } });
   authButton.disabled = false;
   setMessage(error ? error.message : 'Anmeldelink versendet. Bitte prüfe dein E-Mail-Postfach.');
   if (error) message.classList.add('is-error');
@@ -78,7 +90,7 @@ authButton.addEventListener('click', async () => {
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  if (!currentUser) return setMessage('Bitte zuerst anmelden.', true);
+  if (currentUser?.id !== OWNER_UID) return setMessage('Nur das freigeschaltete Supabase-Konto kann Projekte veröffentlichen.', true);
   const data = new FormData(form);
   const file = data.get('file');
   const extension = file.name.split('.').pop().toLowerCase();
@@ -158,11 +170,14 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   supabase.auth.onAuthStateChange((_event, session) => {
     currentUser = session?.user || null;
     updateAuthUI();
+    if (currentUser?.id === OWNER_UID) loadProjects().catch((error) => setMessage(error.message, true));
   });
   const { data: { session } } = await supabase.auth.getSession();
   currentUser = session?.user || null;
   updateAuthUI();
-  try { await loadProjects(); }
+  try {
+    if (currentUser?.id === OWNER_UID) await loadProjects();
+  }
   catch (error) {
     grid.innerHTML = `<div class="empty-state"><h3>Projekte konnten nicht geladen werden.</h3><p>${escapeHtml(error.message)}</p></div>`;
     $('#projectCount').textContent = 'Fehler';

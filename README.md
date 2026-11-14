@@ -5,6 +5,7 @@ Responsive Bibliothek für Android-, Windows-, macOS- und Linux-Projekte. GitHub
 ## Funktionen
 
 - Anmeldung per E-Mail-Link
+- Private Bibliothek, ausschließlich für die festgelegte Supabase-UID
 - Projekt veröffentlichen, suchen und nach Plattform filtern
 - Private Dateispeicherung mit kurzlebigen Download-Links
 - Projekt und Datei als Eigentümer löschen
@@ -18,6 +19,8 @@ Responsive Bibliothek für Android-, Windows-, macOS- und Linux-Projekte. GitHub
 2. Öffne **SQL Editor**, füge den Inhalt von `supabase/schema.sql` ein und führe ihn aus. Das erstellt Tabelle, private Storage-Bucket und Zugriffspolicies.
 3. Unter **Project Settings → API** kopiere die **Project URL** und den **Publishable key** (früher `anon` key). Ein `service_role`- oder Secret-Key gehört niemals in die Website.
 4. In **Authentication → URL Configuration** setze die Site URL auf `https://tayron0905.github.io/AppVault/` und füge dieselbe URL zu den Redirect URLs hinzu.
+5. Deaktiviere unter **Authentication → Settings** die Option **Allow new users to sign up**. Bestehende Nutzer können sich weiter anmelden.
+6. Führe `supabase/schema.sql` erneut aus. Damit werden die bisherigen öffentlichen Leseregeln durch Regeln ersetzt, die nur die festgelegte UID `39427ebf-d52c-42de-b757-143ec7f9f7b0` zulassen.
 
 ### 2. GitHub Actions Variablen
 
@@ -40,7 +43,7 @@ Das sind öffentliche Frontendwerte. Niemals Secret- oder `service_role`-Keys al
 
 Klicke auf **Anmelden**, gib deine E-Mail ein und öffne den zugesandten Link. Danach kannst du ein Projekt samt Datei veröffentlichen. Akzeptiert werden APK, AAB, EXE, MSI, MSIX, DMG, PKG, AppImage, DEB, RPM sowie ZIP/TAR/GZ/7Z bis 100 MB.
 
-Veröffentlichte Projekte sind öffentlich lesbar. Dateien liegen in einem privaten Bucket; zum Download erzeugt Supabase einen nur 60 Sekunden gültigen Link. Angemeldete Eigentümer können eigene Einträge löschen.
+Projekte und Dateien sind nur für die festgelegte UID sichtbar. Dateien liegen in einem privaten Bucket; zum Download erzeugt Supabase einen nur 60 Sekunden gültigen Link. Neue Nutzerkonten können sich nicht registrieren.
 
 ## Lokal bearbeiten
 
