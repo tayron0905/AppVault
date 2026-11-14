@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, OWNER_UID } from './config.js';
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, OWNER_UID, OWNER_EMAIL } from './config.js';
 
 const $ = (selector) => document.querySelector(selector);
 const form = $('#projectForm');
@@ -13,6 +13,7 @@ $('#year').textContent = new Date().getFullYear();
 let supabase;
 let currentUser = null;
 let projects = [];
+const isOwner = (user = currentUser) => user?.id === OWNER_UID && user.email?.trim().toLowerCase() === OWNER_EMAIL;
 
 function setMessage(text, isError = false) {
   message.textContent = text;
@@ -24,7 +25,7 @@ function escapeHtml(value = '') {
 }
 
 function renderProjects() {
-  if (currentUser?.id !== OWNER_UID) {
+  if (!isOwner()) {
     $('#projectCount').textContent = 'Privat';
     return;
   }
@@ -45,7 +46,7 @@ function renderProjects() {
       <h3>${escapeHtml(project.name)}</h3>
       <p>${escapeHtml(project.description || 'Keine Beschreibung angegeben.')}</p>
       <div class="project-meta"><span>${project.version ? `Version ${escapeHtml(project.version)}` : 'Version nicht angegeben'}</span><span>${escapeHtml(project.file_name || 'Datei')}</span></div>
-      <div class="project-actions"><button class="button button-primary download-button" data-id="${escapeHtml(project.id)}" type="button">Herunterladen</button>${currentUser?.id === project.owner_id ? `<button class="button button-quiet delete-button" data-id="${escapeHtml(project.id)}" type="button" aria-label="${escapeHtml(project.name)} löschen">Löschen</button>` : ''}</div>
+      <div class="project-actions"><button class="button button-primary download-button" data-id="${escapeHtml(project.id)}" type="button">Herunterladen</button>${isOwner() && currentUser.id === project.owner_id ? `<button class="button button-quiet delete-button" data-id="${escapeHtml(project.id)}" type="button" aria-label="${escapeHtml(project.name)} löschen">Löschen</button>` : ''}</div>
     </article>`).join('');
 }
 
@@ -57,14 +58,14 @@ async function loadProjects() {
 }
 
 function updateAuthUI() {
-  const isOwner = currentUser?.id === OWNER_UID;
+  const ownerAccess = isOwner();
   authButton.textContent = currentUser ? 'Abmelden' : 'Anmelden';
-  form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach((control) => { control.disabled = !isOwner; });
+  form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach((control) => { control.disabled = !ownerAccess; });
   if (!currentUser) {
     setMessage('Bitte mit dem freigeschalteten Supabase-Konto anmelden.');
     grid.innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><h3>Private Bibliothek</h3><p>Melde dich mit dem freigeschalteten Konto an, um deine Projekte zu sehen.</p></div>';
   } else if (!isOwner) {
-    setMessage('Dieses Supabase-Konto ist für AppVault nicht freigeschaltet.', true);
+    setMessage(`Nur ${OWNER_EMAIL} ist für AppVault freigeschaltet.`, true);
     grid.innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><h3>Zugriff nicht freigeschaltet</h3><p>Verwende das für AppVault hinterlegte Supabase-Konto.</p></div>';
   } else {
     setMessage(`Angemeldet als ${currentUser.email}`);
@@ -79,8 +80,9 @@ authButton.addEventListener('click', async () => {
     if (error) setMessage(error.message, true);
     return;
   }
-  const email = window.prompt('E-Mail-Adresse für den Anmeldelink:');
+  const email = window.prompt('Freigeschaltete E-Mail-Adresse für den Anmeldelink:', OWNER_EMAIL);
   if (!email?.trim()) return;
+  if (email.trim().toLowerCase() !== OWNER_EMAIL) return setMessage(`Nur ${OWNER_EMAIL} darf sich anmelden.`, true);
   authButton.disabled = true;
   const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.href.split('#')[0], shouldCreateUser: false } });
   authButton.disabled = false;
@@ -90,7 +92,7 @@ authButton.addEventListener('click', async () => {
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  if (currentUser?.id !== OWNER_UID) return setMessage('Nur das freigeschaltete Supabase-Konto kann Projekte veröffentlichen.', true);
+  if (!isOwner()) return setMessage(`Nur ${OWNER_EMAIL} kann Projekte veröffentlichen.`, true);
   const data = new FormData(form);
   const file = data.get('file');
   const extension = file.name.split('.').pop().toLowerCase();
@@ -170,13 +172,13 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   supabase.auth.onAuthStateChange((_event, session) => {
     currentUser = session?.user || null;
     updateAuthUI();
-    if (currentUser?.id === OWNER_UID) loadProjects().catch((error) => setMessage(error.message, true));
+    if (isOwner()) loadProjects().catch((error) => setMessage(error.message, true));
   });
   const { data: { session } } = await supabase.auth.getSession();
   currentUser = session?.user || null;
   updateAuthUI();
   try {
-    if (currentUser?.id === OWNER_UID) await loadProjects();
+    if (isOwner()) await loadProjects();
   }
   catch (error) {
     grid.innerHTML = `<div class="empty-state"><h3>Projekte konnten nicht geladen werden.</h3><p>${escapeHtml(error.message)}</p></div>`;

@@ -30,20 +30,40 @@ drop policy if exists "AppVault owner can delete projects" on public.projects;
 
 create policy "AppVault owner can read projects" on public.projects
 for select to authenticated
-using (auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid and auth.uid() = owner_id);
+using (
+  auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.uid() = owner_id
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
+);
 
 create policy "AppVault owner can create projects" on public.projects
 for insert to authenticated
-with check (auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid and auth.uid() = owner_id);
+with check (
+  auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.uid() = owner_id
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
+);
 
 create policy "AppVault owner can update projects" on public.projects
 for update to authenticated
-using (auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid and auth.uid() = owner_id)
-with check (auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid and auth.uid() = owner_id);
+using (
+  auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.uid() = owner_id
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
+)
+with check (
+  auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.uid() = owner_id
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
+);
 
 create policy "AppVault owner can delete projects" on public.projects
 for delete to authenticated
-using (auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid and auth.uid() = owner_id);
+using (
+  auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.uid() = owner_id
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
+);
 
 -- Private storage bucket with a 100 MiB per-file limit.
 insert into storage.buckets (id, name, public, file_size_limit)
@@ -63,6 +83,7 @@ for insert to authenticated
 with check (
   bucket_id = 'app-files'
   and auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
   and (storage.foldername(name))[1] = auth.uid()::text
 );
 
@@ -71,6 +92,7 @@ for select to authenticated
 using (
   bucket_id = 'app-files'
   and auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
   and exists (
     select 1 from public.projects p
     where p.storage_path = storage.objects.name and p.owner_id = auth.uid()
@@ -82,5 +104,6 @@ for delete to authenticated
 using (
   bucket_id = 'app-files'
   and auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
+  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
   and (storage.foldername(name))[1] = auth.uid()::text
 );
