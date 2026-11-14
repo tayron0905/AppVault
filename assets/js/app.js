@@ -6,6 +6,9 @@ const form = $('#projectForm');
 const message = $('#formMessage');
 const grid = $('#projectGrid');
 const authButton = $('#authButton');
+const authDialog = $('#authDialog');
+const authForm = $('#authForm');
+const authMessage = $('#authMessage');
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const allowedExtensions = new Set(['apk','aab','exe','msi','msix','dmg','pkg','appimage','deb','rpm','zip','tar','gz','7z']);
 $('#year').textContent = new Date().getFullYear();
@@ -80,14 +83,35 @@ authButton.addEventListener('click', async () => {
     if (error) setMessage(error.message, true);
     return;
   }
-  const email = window.prompt('Freigeschaltete E-Mail-Adresse für den Anmeldelink:', OWNER_EMAIL);
-  if (!email?.trim()) return;
-  if (email.trim().toLowerCase() !== OWNER_EMAIL) return setMessage(`Nur ${OWNER_EMAIL} darf sich anmelden.`, true);
-  authButton.disabled = true;
-  const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.href.split('#')[0], shouldCreateUser: false } });
-  authButton.disabled = false;
-  setMessage(error ? error.message : 'Anmeldelink versendet. Bitte prüfe dein E-Mail-Postfach.');
-  if (error) message.classList.add('is-error');
+  $('#loginEmail').value = OWNER_EMAIL;
+  authMessage.textContent = '';
+  authMessage.classList.remove('is-error');
+  authDialog.showModal();
+});
+
+$('#closeAuthDialog').addEventListener('click', () => authDialog.close());
+authDialog.addEventListener('close', () => {
+  authForm.reset();
+  $('#loginEmail').value = OWNER_EMAIL;
+});
+
+authForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const password = new FormData(authForm).get('password');
+  const submit = authForm.querySelector('[type="submit"]');
+  submit.disabled = true;
+  authMessage.textContent = 'Anmeldung läuft …';
+  authMessage.classList.remove('is-error');
+  const { error } = await supabase.auth.signInWithPassword({ email: OWNER_EMAIL, password });
+  submit.disabled = false;
+  if (error) {
+    authMessage.textContent = error.message;
+    authMessage.classList.add('is-error');
+    return;
+  }
+  authDialog.close();
+  authForm.reset();
+  $('#loginEmail').value = OWNER_EMAIL;
 });
 
 form.addEventListener('submit', async (event) => {

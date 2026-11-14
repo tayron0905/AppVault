@@ -4,7 +4,7 @@ Responsive Bibliothek für Android-, Windows-, macOS- und Linux-Projekte. GitHub
 
 ## Funktionen
 
-- Anmeldung per E-Mail-Link
+- Anmeldung mit der festgelegten E-Mail-Adresse und Passwort
 - Private Bibliothek, ausschließlich für `tayrondrankiewicz0905@gmail.com` und die festgelegte Supabase-UID
 - Projekt veröffentlichen, suchen und nach Plattform filtern
 - Private Dateispeicherung mit kurzlebigen Download-Links
@@ -41,7 +41,7 @@ Das sind öffentliche Frontendwerte. Niemals Secret- oder `service_role`-Keys al
 
 ## Nutzung
 
-Klicke auf **Anmelden**, gib deine E-Mail ein und öffne den zugesandten Link. Danach kannst du ein Projekt samt Datei veröffentlichen. Akzeptiert werden APK, AAB, EXE, MSI, MSIX, DMG, PKG, AppImage, DEB, RPM sowie ZIP/TAR/GZ/7Z bis 100 MB.
+Klicke auf **Anmelden** und gib das Passwort für `tayrondrankiewicz0905@gmail.com` ein. Danach kannst du ein Projekt samt Datei veröffentlichen. Akzeptiert werden APK, AAB, EXE, MSI, MSIX, DMG, PKG, AppImage, DEB, RPM sowie ZIP/TAR/GZ/7Z bis 100 MB. Der Supabase-Auth-Nutzer muss bereits angelegt sein und ein Passwort besitzen.
 
 Projekte und Dateien sind nur für die festgelegte E-Mail-Adresse und UID sichtbar. Dateien liegen in einem privaten Bucket; zum Download erzeugt Supabase einen nur 60 Sekunden gültigen Link. Neue Nutzerkonten können sich nicht registrieren.
 
