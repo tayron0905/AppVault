@@ -28,10 +28,6 @@ function escapeHtml(value = '') {
 }
 
 function renderProjects() {
-  if (!isOwner()) {
-    $('#projectCount').textContent = 'Privat';
-    return;
-  }
   const query = $('#searchInput').value.trim().toLocaleLowerCase('de');
   const platform = $('#platformFilter').value;
   const visible = projects.filter((project) => {
@@ -40,7 +36,7 @@ function renderProjects() {
   });
   $('#projectCount').textContent = `${visible.length} ${visible.length === 1 ? 'Projekt' : 'Projekte'}`;
   if (!visible.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">◇</div><h3>${projects.length ? 'Keine Treffer.' : 'Noch keine Projekte vorhanden.'}</h3><p>${projects.length ? 'Passe Suche oder Plattformfilter an.' : 'Melde dich an und veröffentliche das erste Projekt.'}</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">◇</div><h3>${projects.length ? 'Keine Treffer.' : 'Noch keine Projekte vorhanden.'}</h3><p>${projects.length ? 'Passe Suche oder Plattformfilter an.' : 'Hier erscheinen veröffentlichte Projekte.'}</p></div>`;
     return;
   }
   grid.innerHTML = visible.map((project) => `
@@ -65,11 +61,9 @@ function updateAuthUI() {
   authButton.textContent = currentUser ? 'Abmelden' : 'Anmelden';
   form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach((control) => { control.disabled = !ownerAccess; });
   if (!currentUser) {
-    setMessage('Bitte mit dem freigeschalteten Supabase-Konto anmelden.');
-    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><h3>Private Bibliothek</h3><p>Melde dich mit dem freigeschalteten Konto an, um deine Projekte zu sehen.</p></div>';
-  } else if (!isOwner) {
-    setMessage(`Nur ${OWNER_EMAIL} ist für AppVault freigeschaltet.`, true);
-    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><h3>Zugriff nicht freigeschaltet</h3><p>Verwende das für AppVault hinterlegte Supabase-Konto.</p></div>';
+    setMessage('Sammlung öffentlich · zum Verwalten anmelden.');
+  } else if (!ownerAccess) {
+    setMessage('Sammlung öffentlich · dieses Konto kann keine Projekte verwalten.');
   } else {
     setMessage(`Angemeldet als ${currentUser.email}`);
   }
@@ -196,13 +190,13 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   supabase.auth.onAuthStateChange((_event, session) => {
     currentUser = session?.user || null;
     updateAuthUI();
-    if (isOwner()) loadProjects().catch((error) => setMessage(error.message, true));
+    loadProjects().catch((error) => setMessage(error.message, true));
   });
   const { data: { session } } = await supabase.auth.getSession();
   currentUser = session?.user || null;
   updateAuthUI();
   try {
-    if (isOwner()) await loadProjects();
+    await loadProjects();
   }
   catch (error) {
     grid.innerHTML = `<div class="empty-state"><h3>Projekte konnten nicht geladen werden.</h3><p>${escapeHtml(error.message)}</p></div>`;

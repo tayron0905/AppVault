@@ -1,4 +1,4 @@
--- AppVault: private project library for the configured Supabase user.
+-- AppVault: public project library, managed only by the configured Supabase user.
 -- Safe to rerun: policies are replaced; existing project rows and files are kept.
 
 create table if not exists public.projects (
@@ -20,21 +20,17 @@ alter table public.projects enable row level security;
 
 drop policy if exists "Anyone can read published projects" on public.projects;
 drop policy if exists "Owners can read their projects" on public.projects;
+drop policy if exists "AppVault owner can read projects" on public.projects;
 drop policy if exists "Owners can create their projects" on public.projects;
 drop policy if exists "Owners can update their projects" on public.projects;
 drop policy if exists "Owners can delete their projects" on public.projects;
-drop policy if exists "AppVault owner can read projects" on public.projects;
 drop policy if exists "AppVault owner can create projects" on public.projects;
 drop policy if exists "AppVault owner can update projects" on public.projects;
 drop policy if exists "AppVault owner can delete projects" on public.projects;
 
-create policy "AppVault owner can read projects" on public.projects
-for select to authenticated
-using (
-  auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
-  and auth.uid() = owner_id
-  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
-);
+create policy "Anyone can read published projects" on public.projects
+for select to anon, authenticated
+using (published = true);
 
 create policy "AppVault owner can create projects" on public.projects
 for insert to authenticated
@@ -77,6 +73,7 @@ drop policy if exists "Owners delete app files" on storage.objects;
 drop policy if exists "AppVault owner can upload app files" on storage.objects;
 drop policy if exists "AppVault owner can read app files" on storage.objects;
 drop policy if exists "AppVault owner can delete app files" on storage.objects;
+drop policy if exists "Anyone can read published app files" on storage.objects;
 
 create policy "AppVault owner can upload app files" on storage.objects
 for insert to authenticated
@@ -87,15 +84,13 @@ with check (
   and (storage.foldername(name))[1] = auth.uid()::text
 );
 
-create policy "AppVault owner can read app files" on storage.objects
-for select to authenticated
+create policy "Anyone can read published app files" on storage.objects
+for select to anon, authenticated
 using (
   bucket_id = 'app-files'
-  and auth.uid() = '39427ebf-d52c-42de-b757-143ec7f9f7b0'::uuid
-  and auth.jwt() ->> 'email' = 'tayrondrankiewicz0905@gmail.com'
   and exists (
     select 1 from public.projects p
-    where p.storage_path = storage.objects.name and p.owner_id = auth.uid()
+    where p.storage_path = storage.objects.name and p.published = true
   )
 );
 
