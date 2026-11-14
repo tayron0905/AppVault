@@ -12,7 +12,7 @@
   <header class="topbar">
     <a class="brand" href="#"><span class="brand-mark">A</span><span>AppVault</span></a>
     <nav><a href="#bibliothek">Bibliothek</a><a href="#upload">Hochladen</a><a href="#about">Über AppVault</a></nav>
-    <button id="authButton" class="button button-quiet" type="button">Anmeldung später</button>
+    <button id="authButton" class="button button-quiet" type="button">Anmelden</button>
   </header>
 
   <main>
@@ -46,27 +46,27 @@
         </select>
       </div>
       <div id="projectGrid" class="project-grid">
-        <div class="empty-state"><div class="empty-icon">◇</div><h3>Deine Bibliothek wartet.</h3><p>Hier erscheinen Projekte, sobald Supabase verbunden und Apps hochgeladen wurden.</p></div>
+        <div class="empty-state"><div class="empty-icon">◇</div><h3>Bibliothek wird geladen …</h3><p>Bitte einen Moment warten.</p></div>
       </div>
     </section>
 
     <section id="upload" class="section upload-section">
       <div class="section-heading"><div><p class="eyebrow">NEUES PROJEKT</p><h2>Zur Bibliothek hinzufügen</h2></div></div>
-      <div class="setup-note"><strong>Einrichtung noch offen</strong><p>Die Oberfläche ist vorbereitet. Uploads und dauerhafte Speicherung werden im nächsten Schritt mit deinem Supabase-Projekt verbunden. Trage bis dahin keine Dateien hier ein.</p></div>
+      <div class="setup-note"><strong>Projekt veröffentlichen</strong><p>Melde dich mit deiner E-Mail-Adresse an. Projekte und Dateien werden über Supabase gespeichert; veröffentlichte Einträge sind für alle sichtbar.</p></div>
       <form id="projectForm" class="upload-card">
         <div class="form-grid">
           <label>Projektname<input name="name" required maxlength="80" placeholder="z. B. Mein Launcher"></label>
           <label>Version<input name="version" maxlength="30" placeholder="z. B. 1.0.0"></label>
           <label>Plattform<select name="platform" required><option value="">Bitte wählen</option><option>Android</option><option>Windows</option><option>macOS</option><option>Linux</option><option>Cross-Platform</option></select></label>
-          <label>Datei<input name="file" type="file" disabled><small>Datei-Upload wird nach der Supabase-Verbindung aktiviert.</small></label>
+          <label>Datei<input name="file" type="file" required><small>Maximal 100 MB pro Datei. APK, ZIP, EXE, DMG, AppImage und weitere Archivformate.</small></label>
           <label class="full">Projektbeschreibung<textarea name="description" rows="4" maxlength="1200" placeholder="Was macht dein Projekt?"></textarea></label>
         </div>
-        <button class="button button-primary" type="submit">Projekt vormerken</button>
-        <p id="formMessage" class="form-message" role="status">Noch nicht mit Supabase verbunden.</p>
+        <button class="button button-primary" type="submit">Projekt veröffentlichen</button>
+        <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
       </form>
     </section>
 
-    <section id="about" class="about-strip"><div><p class="eyebrow">APPVAULT</p><h2>Ein Zuhause für deine Projekte.</h2></div><p>Eine übersichtliche Sammlung deiner Software-Projekte. Die Website wird über GitHub Pages veröffentlicht, Dateien und Projektdaten werden später sicher über Supabase verwaltet.</p></section>
+    <section id="about" class="about-strip"><div><p class="eyebrow">APPVAULT</p><h2>Ein Zuhause für deine Projekte.</h2></div><p>Eine übersichtliche Sammlung deiner Software-Projekte. Die Website läuft über GitHub Pages; Projektdaten und private Dateien verwaltet Supabase mit Zugriffsschutz.</p></section>
   </main>
 
   <footer><a class="brand" href="#"><span class="brand-mark">A</span><span>AppVault</span></a><span>Deine Software-Sammlung · <span id="year"></span></span></footer>
