@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131d">
+  <meta name="description" content="AppVault: Projekte und Apps für Android, Windows, macOS und Linux.">
+  <title>AppVault – Deine App-Bibliothek</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">A</span><span>AppVault</span></a>
+    <nav><a href="#bibliothek">Bibliothek</a><a href="#upload">Hochladen</a><a href="#about">Über AppVault</a></nav>
+    <button id="authButton" class="button button-quiet" type="button">Anmeldung später</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">DEINE SOFTWARE. DEIN ÜBERBLICK.</p>
+        <h1>Alles an einem<br><span>digitalen Ort.</span></h1>
+        <p class="hero-text">Entdecke und verwalte Projekte und App-Dateien für Android, Windows, macOS und Linux.</p>
+        <a class="button button-primary" href="#bibliothek">Bibliothek ansehen <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="vault-card"><div class="vault-icon">A</div><div class="vault-lines"><i></i><i></i><i></i></div><span class="vault-chip">APP VAULT</span></div>
+        <span class="float-tag tag-android">ANDROID</span><span class="float-tag tag-desktop">DESKTOP</span>
+      </div>
+    </section>
+
+    <section class="platforms" aria-label="Unterstützte Plattformen">
+      <span>PLATTFORMEN</span><b>◉ Android</b><b>▣ Windows</b><b>⌘ macOS</b><b>◈ Linux</b>
+    </section>
+
+    <section id="bibliothek" class="section">
+      <div class="section-heading">
+        <div><p class="eyebrow">DIE SAMMLUNG</p><h2>Projekt-Bibliothek</h2></div>
+        <span id="projectCount" class="count">0 Projekte</span>
+      </div>
+      <div class="filters">
+        <input id="searchInput" type="search" placeholder="Projekt suchen …" aria-label="Projekt suchen">
+        <select id="platformFilter" aria-label="Plattform filtern">
+          <option value="all">Alle Plattformen</option><option>Android</option><option>Windows</option><option>macOS</option><option>Linux</option><option>Cross-Platform</option>
+        </select>
+      </div>
+      <div id="projectGrid" class="project-grid">
+        <div class="empty-state"><div class="empty-icon">◇</div><h3>Deine Bibliothek wartet.</h3><p>Hier erscheinen Projekte, sobald Supabase verbunden und Apps hochgeladen wurden.</p></div>
+      </div>
+    </section>
+
+    <section id="upload" class="section upload-section">
+      <div class="section-heading"><div><p class="eyebrow">NEUES PROJEKT</p><h2>Zur Bibliothek hinzufügen</h2></div></div>
+      <div class="setup-note"><strong>Einrichtung noch offen</strong><p>Die Oberfläche ist vorbereitet. Uploads und dauerhafte Speicherung werden im nächsten Schritt mit deinem Supabase-Projekt verbunden. Trage bis dahin keine Dateien hier ein.</p></div>
+      <form id="projectForm" class="upload-card">
+        <div class="form-grid">
+          <label>Projektname<input name="name" required maxlength="80" placeholder="z. B. Mein Launcher"></label>
+          <label>Version<input name="version" maxlength="30" placeholder="z. B. 1.0.0"></label>
+          <label>Plattform<select name="platform" required><option value="">Bitte wählen</option><option>Android</option><option>Windows</option><option>macOS</option><option>Linux</option><option>Cross-Platform</option></select></label>
+          <label>Datei<input name="file" type="file" disabled><small>Datei-Upload wird nach der Supabase-Verbindung aktiviert.</small></label>
+          <label class="full">Projektbeschreibung<textarea name="description" rows="4" maxlength="1200" placeholder="Was macht dein Projekt?"></textarea></label>
+        </div>
+        <button class="button button-primary" type="submit">Projekt vormerken</button>
+        <p id="formMessage" class="form-message" role="status">Noch nicht mit Supabase verbunden.</p>
+      </form>
+    </section>
+
+    <section id="about" class="about-strip"><div><p class="eyebrow">APPVAULT</p><h2>Ein Zuhause für deine Projekte.</h2></div><p>Eine übersichtliche Sammlung deiner Software-Projekte. Die Website wird über GitHub Pages veröffentlicht, Dateien und Projektdaten werden später sicher über Supabase verwaltet.</p></section>
+  </main>
+
+  <footer><a class="brand" href="#"><span class="brand-mark">A</span><span>AppVault</span></a><span>Deine Software-Sammlung · <span id="year"></span></span></footer>
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
